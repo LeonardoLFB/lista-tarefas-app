@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "meu-lista-tarefas",
-    "slug": "meu-lista-tarefas",
+    "name": "lista-tarefas-app",
+    "slug": "lista-tarefas-app",
     "version": "1.0.0",
+    "scheme": "lista-tarefas",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,6 +21,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-status-bar"
+    ]
   }
 }
