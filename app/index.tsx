@@ -1,10 +1,77 @@
-import React from "react";
-import { View, FlatList, TouchableOpacity, Text, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
-import { useTasks } from "../src/hooks/useTasks";
-// ... componentes
+import React from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTasks } from '../src/hooks/useTasks';
+import { TaskItem } from '../src/components/TaskItem';
+import { FilterBar } from '../src/components/FilterBar';
+import { EmptyState } from '../src/components/EmptyState';
 
 export default function HomeScreen() {
-  const { tasks, filter, loading, ... } = useTasks(); // Toda a lógica está no hook!
-  // A tela só renderiza a UI com os dados que o hook fornece
+  const router = useRouter();
+  const {
+    tasks,
+    filter,
+    loading,
+    allTasksCount,
+    pendingCount,
+    completedCount,
+    setFilter,
+    toggleTask,
+    removeTask,
+  } = useTasks();
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#4f46e5" />
+        <Text className="mt-3 text-sm text-gray-500">
+          Carregando tarefas...
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1 bg-gray-50">
+      <FilterBar
+        filter={filter}
+        onFilterChange={setFilter}
+        allCount={allTasksCount}
+        pendingCount={pendingCount}
+        completedCount={completedCount}
+      />
+
+      <FlatList
+        data={tasks}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <TaskItem task={item} onToggle={toggleTask} onDelete={removeTask} />
+        )}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 96,
+          flexGrow: 1,
+        }}
+        ListEmptyComponent={<EmptyState filter={filter} />}
+      />
+
+      {/* Botão flutuante para criar uma nova tarefa */}
+      <TouchableOpacity
+        onPress={() => router.push('/form')}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Adicionar nova tarefa"
+        className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-indigo-600 shadow-lg"
+      >
+        <Text className="text-3xl leading-9 text-white">+</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
