@@ -5,8 +5,10 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { useAuthContext } from '../src/contexts/AuthContext';
 import { useTasks } from '../src/hooks/useTasks';
 import { TaskItem } from '../src/components/TaskItem';
 import { FilterBar } from '../src/components/FilterBar';
@@ -14,6 +16,7 @@ import { EmptyState } from '../src/components/EmptyState';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user, signOut } = useAuthContext();
   const {
     tasks,
     filter,
@@ -46,6 +49,22 @@ export default function HomeScreen() {
     />
   );
 
+  // Não navegamos depois do signOut: o _layout leva para o login sozinho
+  function confirmSignOut() {
+    Alert.alert('Sair', 'Deseja sair da sua conta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Sair',
+        style: 'destructive',
+        onPress: () => {
+          signOut().catch(() =>
+            Alert.alert('Erro', 'Não foi possível sair. Tente de novo.'),
+          );
+        },
+      },
+    ]);
+  }
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
@@ -61,6 +80,23 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       {header}
+
+      {/* Usuário logado + logout */}
+      <View className="flex-row items-center justify-between border-b border-gray-200 bg-white px-4 py-2">
+        <Text className="mr-3 flex-1 text-sm text-gray-600" numberOfLines={1}>
+          Olá, <Text className="font-semibold">{user?.email}</Text>
+        </Text>
+        <TouchableOpacity
+          onPress={confirmSignOut}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Sair da conta"
+          className="rounded-lg px-3 py-1"
+        >
+          <Text className="text-sm font-semibold text-red-600">Sair</Text>
+        </TouchableOpacity>
+      </View>
+
       <FilterBar
         filter={filter}
         onFilterChange={setFilter}
