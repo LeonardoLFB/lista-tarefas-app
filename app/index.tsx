@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useTasks } from '../src/hooks/useTasks';
 import { TaskItem } from '../src/components/TaskItem';
 import { FilterBar } from '../src/components/FilterBar';
@@ -26,9 +26,30 @@ export default function HomeScreen() {
     removeTask,
   } = useTasks();
 
+  // Botão 👤 no header. Fica aqui (e não no _layout.tsx) porque o
+  // headerRight precisa do router desta tela.
+  const header = (
+    <Stack.Screen
+      options={{
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => router.push('/profile')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir meu perfil"
+            className="px-2"
+          >
+            <Text className="text-2xl">👤</Text>
+          </TouchableOpacity>
+        ),
+      }}
+    />
+  );
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
+        {header}
         <ActivityIndicator size="large" color="#4f46e5" />
         <Text className="mt-3 text-sm text-gray-500">
           Carregando tarefas...
@@ -39,6 +60,7 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-gray-50">
+      {header}
       <FilterBar
         filter={filter}
         onFilterChange={setFilter}
